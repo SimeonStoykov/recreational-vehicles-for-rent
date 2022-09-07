@@ -1,6 +1,6 @@
-.vehicle-img {
-  width: 200px;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 15px;
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
 }

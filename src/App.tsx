@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useQuery, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import SearchForm from './components/SearchForm/SearchForm';
+import VehicleList from './components/VehicleList/VehicleList';
 import { useDebounce } from './customHooks';
+import type { VehicleData } from './types';
 import './App.css';
 
 const queryClient = new QueryClient({
@@ -19,21 +22,22 @@ function AppContainer() {
   );
 }
 
+const defaultData: VehicleData = { data: [], included: [] };
+
 function App() {
   const [searchVal, setSearchVal] = useState('');
-
   const debouncedFilter = useDebounce(searchVal, 500);
   const {
-    data = { data: [], included: [] },
+    data = defaultData,
     fetchStatus,
-    isError
+    isError,
+    isLoading
   } = useQuery(['vehicles', debouncedFilter], () => fetchVehicles(debouncedFilter), {
     enabled: Boolean(debouncedFilter)
   });
 
   const fetchVehicles = async (keywords: string) => {
     if (keywords) {
-      console.log('fetching with: ', keywords);
       const vehiclesResp = await fetch(
         `https://search.outdoorsy.com/rentals?address=atlanta&filter[keywords]=${keywords}`
       );
@@ -44,50 +48,13 @@ function App() {
   return (
     <main>
       <SearchForm searchVal={searchVal} setSearchVal={setSearchVal} />
-      <VehicleList vehicles={data} fetchStatus={fetchStatus} isError={isError} />
+      <VehicleList
+        vehicleData={data}
+        fetchStatus={fetchStatus}
+        isError={isError}
+        isLoading={isLoading}
+      />
     </main>
-  );
-}
-
-function SearchForm({ searchVal, setSearchVal }: any) {
-  const handleSearchValChange = (e: any) => {
-    setSearchVal(e.target.value);
-  };
-
-  return (
-    <form>
-      <input type="text" value={searchVal} onChange={handleSearchValChange} />
-    </form>
-  );
-}
-
-function VehicleList({ vehicles, fetchStatus, isError }: any) {
-  const { data, included } = vehicles;
-
-  if (fetchStatus === 'fetching') {
-    return <span>Loading...</span>;
-  }
-
-  if (isError) {
-    return <span>Error</span>;
-  }
-
-  return (
-    <ul>
-      {data.map((d: any) => {
-        const imageId = d.relationships.primary_image.data.id;
-        const vehicleImage = included.find(
-          (inc: any) => inc.type === 'images' && inc.id === imageId
-        );
-
-        return (
-          <li key={d.id}>
-            <img src={vehicleImage.attributes.url} alt="Vehicle" className="vehicle-img" />
-            {d.attributes.name}
-          </li>
-        );
-      })}
-    </ul>
   );
 }
 
