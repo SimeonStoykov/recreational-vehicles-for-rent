@@ -28,6 +28,8 @@ function VehicleList({ vehicleData, fetchStatus, isError, isLoading }: Props) {
     return <p className="data-state">No results</p>;
   }
 
+  if (data.length === 0) return null;
+
   return (
     <ul>
       {data.map((d: VehicleDataItem) => (
