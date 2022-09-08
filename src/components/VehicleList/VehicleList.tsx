@@ -1,4 +1,5 @@
 import type { FetchStatus } from '@tanstack/react-query';
+import ReactLoading from 'react-loading';
 import { VehicleData, VehicleDataItem } from '../../types';
 import Vehicle from '../Vehicle/Vehicle';
 import './VehicleList.css';
@@ -14,15 +15,17 @@ function VehicleList({ vehicleData, fetchStatus, isError, isLoading }: Props) {
   const { data, included } = vehicleData;
 
   if (fetchStatus === 'fetching') {
-    return <span>Loading...</span>;
+    return (
+      <ReactLoading className="data-state" type="bubbles" color="black" height={50} width={100} />
+    );
   }
 
   if (isError) {
-    return <span>Error fetching vehicles...</span>;
+    return <p className="data-state">Error fetching vehicles...</p>;
   }
 
   if (!isLoading && data.length === 0) {
-    return <div>No results</div>;
+    return <p className="data-state">No results</p>;
   }
 
   return (
