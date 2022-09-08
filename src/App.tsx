@@ -3,13 +3,15 @@ import { useQuery, QueryClient, QueryClientProvider } from '@tanstack/react-quer
 import SearchForm from './components/SearchForm/SearchForm';
 import VehicleList from './components/VehicleList/VehicleList';
 import { useDebounce } from './customHooks';
-import type { VehicleData } from './types';
+import config from './config';
 import './App.css';
+
+const { rentalsEndpoint, city, refetchOnWindowFocus, defaultData } = config;
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false
+      refetchOnWindowFocus
     }
   }
 });
@@ -21,8 +23,6 @@ function AppContainer() {
     </QueryClientProvider>
   );
 }
-
-const defaultData: VehicleData = { data: [], included: [] };
 
 function App() {
   const [searchVal, setSearchVal] = useState('');
@@ -39,7 +39,7 @@ function App() {
   const fetchVehicles = async (keywords: string) => {
     if (keywords) {
       const vehiclesResp = await fetch(
-        `https://search.outdoorsy.com/rentals?address=atlanta&filter[keywords]=${keywords}`
+        `${rentalsEndpoint}?address=${city}&filter[keywords]=${keywords}`
       );
       return vehiclesResp.json();
     }
